@@ -214,8 +214,6 @@ sudo apt install -y docker-ce docker-ce-cli containerd.io
 sudo groupadd docker
 sudo usermod -aG docker $USER
 
-# Reboot required for group changes
-echo "⚠️  REBOOT REQUIRED! Please restart your system and continue with Step 2."
 ```
 
 #### Step 2: Post-Reboot Setup
@@ -303,7 +301,6 @@ make pdk
 make test PDK=sky130A
 ```
 </details>
----
 
 ## 📚 Additional Resources
 
