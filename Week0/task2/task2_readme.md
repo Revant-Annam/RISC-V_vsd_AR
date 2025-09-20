@@ -13,9 +13,10 @@
   - [Yosys](#1-yosys)
   - [Icarus Verilog](#2-icarus-verilog-iverilog)
   - [GTKWave](#3-gtkwave)
-  - [ngspice](#4-ngspice)
-  - [Magic](#5-magic)
-  - [OpenLane](#6-openlane)
+  - [OpenSTA](#4-OpenSTA)
+  - [ngspice](#5-ngspice)
+  - [Magic](#6-magic)
+  - [OpenLane](#7-openlane)
 - [Verification](#-verification)
 - [Troubleshooting](#-troubleshooting)
 - [Contributing](#-contributing)
@@ -54,7 +55,8 @@ git clone https://github.com/YosysHQ/yosys.git
 cd yosys
 
 # Install build dependencies
-sudo apt install make build-essential clang bison flex \
+sudo apt install make
+sudo apt-get build-essential clang bison flex \
     libreadline-dev gawk tcl-dev libffi-dev git \
     graphviz xdot pkg-config python3 libboost-system-dev \
     libboost-python-dev libboost-filesystem-dev zlib1g-dev
@@ -65,7 +67,7 @@ make -j$(nproc)
 sudo make install
 
 # Verify installation
-yosys -V
+yosys
 ```
 
 ---
@@ -97,12 +99,39 @@ sudo apt-get update
 sudo apt install gtkwave
 
 # Verify installation
-gtkwave --version
+gtkwave 
 ```
-
 ---
 
-### 4. **ngspice**
+### 4. **OpenSTA**
+*Static Timing Analysis Tool*
+
+OpenSTA is an open-source static timing analysis (STA) tool used to verify the timing of digital circuits. It reads synthesized netlists and Liberty timing libraries to compute path delays, setup/hold violations, and slack, helping ensure that designs meet timing constraints before fabrication.
+
+```bash
+# Install dependencies
+sudo apt-get update && sudo apt install git build-essential cmake tcl-dev tk-dev swig bison flex libeigen3-dev
+
+# Clone OpenSTA repository
+git clone https://github.com/The-OpenROAD-Project/OpenSTA.git
+cd OpenSTA
+
+# Create build directory
+mkdir build
+cd build
+
+# Build OpenSTA
+cmake ..
+make -j$(nproc)
+
+# Optionally, install system-wide
+sudo make install
+
+# Verify installation
+sta --version
+```
+---
+### 5. **ngspice**
 *Mixed-signal circuit simulator*
 
 ngspice is a powerful SPICE-compatible circuit simulator for analog and mixed-signal designs.
@@ -110,10 +139,10 @@ ngspice is a powerful SPICE-compatible circuit simulator for analog and mixed-si
 ```bash
 # Download from official source
 # Visit: https://sourceforge.net/projects/ngspice/files/
-# For version 42 (latest as of 2024):
-wget https://sourceforge.net/projects/ngspice/files/ng-spice-rework/42/ngspice-42.tar.gz
-tar -zxvf ngspice-42.tar.gz
-cd ngspice-42
+# For version 45.2 (latest as of 2025):
+wget https://sourceforge.net/projects/ngspice/files/ng-spice-rework/45.2/ngspice-45.2.tar.gz
+tar -zxvf ngspice-45.2.tar.gz
+cd ngspice-45.2
 
 # Create build directory
 mkdir release && cd release
@@ -126,12 +155,12 @@ make -j$(nproc)
 sudo make install
 
 # Verify installation
-ngspice --version
+ngspice
 ```
 
 ---
 
-### 5. **Magic**
+### 6. **Magic**
 *VLSI layout design tool*
 
 Magic is a venerable and powerful tool for creating and editing integrated circuit layouts.
@@ -151,12 +180,12 @@ make -j$(nproc)
 sudo make install
 
 # Verify installation
-magic -noconsole -T min2 <<< "quit -noprompt"
+magic
 ```
 
 ---
 
-### 6. **OpenLane**
+### 7. **OpenLane**
 *Complete RTL-to-GDSII flow automation*
 
 OpenLane provides an automated digital ASIC implementation flow using multiple open-source tools.
@@ -165,7 +194,7 @@ OpenLane provides an automated digital ASIC implementation flow using multiple o
 
 ```bash
 # Update system
-sudo apt-get update && sudo apt-get upgrade -y
+sudo apt-get update && sudo apt-get upgrade 
 
 # Install basic dependencies
 sudo apt install -y build-essential python3 python3-venv python3-pip make git
@@ -196,7 +225,6 @@ echo "⚠️  REBOOT REQUIRED! Please restart your system and continue with Step
 docker run hello-world
 
 # Check all dependencies
-echo "Checking installed versions:"
 git --version
 docker --version
 python3 --version
@@ -221,45 +249,7 @@ make test
 
 ---
 
-## ✅ Verification
-
-After installation, verify all tools are working correctly:
-
-```bash
-# Create a simple verification script
-cat << 'EOF' > verify_tools.sh
-#!/bin/bash
-echo "🔍 Verifying EDA Tools Installation..."
-echo "======================================"
-
-tools=("yosys" "iverilog" "gtkwave" "ngspice" "magic")
-
-for tool in "${tools[@]}"; do
-    if command -v $tool &> /dev/null; then
-        echo "✅ $tool: INSTALLED"
-    else
-        echo "❌ $tool: NOT FOUND"
-    fi
-done
-
-# Check OpenLane
-if [ -d "$HOME/OpenLane" ]; then
-    echo "✅ OpenLane: INSTALLED"
-else
-    echo "❌ OpenLane: NOT FOUND"
-fi
-
-echo "======================================"
-echo "✨ Verification Complete!"
-EOF
-
-chmod +x verify_tools.sh
-./verify_tools.sh
-```
-
----
-
-## 📊 Tool Summary
+## 📊 Installed Tools Summary
 
 | Tool | Purpose | Key Features |
 |------|---------|--------------|
@@ -299,58 +289,27 @@ sudo apt-get install -y libx11-dev libxaw7-dev libxmu-dev
 </details>
 
 <details>
-<summary><strong>OpenLane build failures</strong></summary>
+<summary><strong>Missing pdk</strong></summary>
+I had to make changes in the make file. Below are the images and commands.
+<br>
+<img width="646" height="55" alt="image" src="https://github.com/user-attachments/assets/bcf95615-ac5d-49c7-98c5-68815dd384fe" />
+<img width="614" height="127" alt="image" src="https://github.com/user-attachments/assets/a1c82d9b-556e-430d-9c3a-3bd5933b0c16" />
+
 
 ```bash
-# Ensure adequate disk space (>50GB)
-df -h
-
-# Clean and retry
-make clean
-make
+#Changes made in the commands
+sudo chown -R $USER:$USER /home/revant-annam/.ciel
+make pdk
+make test PDK=sky130A
 ```
 </details>
-
 ---
 
 ## 📚 Additional Resources
 
-- 📖 [Yosys Documentation](https://yosyshq.readthedocs.io/)
 - 📖 [Icarus Verilog Manual](https://iverilog.fandom.com/)
 - 📖 [Magic Tutorial](http://opencircuitdesign.com/magic/)
 - 📖 [OpenLane Documentation](https://openlane.readthedocs.io/)
-- 🎥 [Video Tutorials Playlist](https://youtube.com/playlist)
 
----
 
-## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/improvement`)
-3. Commit your changes (`git commit -am 'Add some improvement'`)
-4. Push to the branch (`git push origin feature/improvement`)
-5. Create a Pull Request
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## ⭐ Support
-
-If you find this helpful, please consider giving it a star! ⭐
-
-For questions or support, please [open an issue](https://github.com/yourusername/eda-tools-setup/issues).
-
----
-
-<div align="center">
-  <strong>Happy Designing! 🚀</strong>
-  <br>
-  <em>Built with ❤️ for the open-source EDA community</em>
-</div>
